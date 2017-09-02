@@ -69,4 +69,10 @@ public class ReceiptController {
     public String getNetId() {
         return "ym224";
     }
+
+    @GET
+    public String getNetIdBase() {
+        return "ym224";
+    }
+
 }
