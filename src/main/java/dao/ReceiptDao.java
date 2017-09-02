@@ -1,16 +1,20 @@
 package dao;
 
-import api.ReceiptResponse;
 import generated.tables.records.ReceiptsRecord;
+import generated.tables.records.ReceiptsTagsRecord;
 import org.jooq.Configuration;
 import org.jooq.DSLContext;
+import org.jooq.Record3;
+import org.jooq.Result;
 import org.jooq.impl.DSL;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
 import static generated.Tables.RECEIPTS;
+import static generated.Tables.RECEIPTS_TAGS;
 
 public class ReceiptDao {
     DSLContext dsl;
@@ -26,7 +30,7 @@ public class ReceiptDao {
                 .returning(RECEIPTS.ID)
                 .fetchOne();
 
-        checkState(receiptsRecord != null && receiptsRecord.getId() != null, "Insert failed");
+        checkState(receiptsRecord != null && receiptsRecord.getId() != null, "Insert into Receipts failed");
 
         return receiptsRecord.getId();
     }
@@ -34,4 +38,47 @@ public class ReceiptDao {
     public List<ReceiptsRecord> getAllReceipts() {
         return dsl.selectFrom(RECEIPTS).fetch();
     }
+
+    public boolean idExists(Integer receiptId){
+        return dsl.fetchExists(RECEIPTS, RECEIPTS.ID.eq(receiptId));
+    }
+
+    public void toggleTagReceipt(Integer receiptId, Integer tagId) {
+        // find record in receipts_tags table
+        List<ReceiptsTagsRecord> receiptsTagsRecords = dsl.selectFrom(RECEIPTS_TAGS)
+                .where(RECEIPTS_TAGS.RECEIPT_ID.eq(receiptId).and(RECEIPTS_TAGS.TAG_ID.eq(tagId))).fetch();
+
+        // delete if entry exists with receipt and tag
+        if (receiptsTagsRecords.size() > 0) {
+            dsl.delete(RECEIPTS_TAGS)
+                    .where(RECEIPTS_TAGS.RECEIPT_ID.eq(receiptId))
+                    .and(RECEIPTS_TAGS.TAG_ID.eq(tagId))
+                    .execute();
+        }
+        // otherwise, create new entry with receipt and tag
+        else {
+            dsl.insertInto(RECEIPTS_TAGS, RECEIPTS_TAGS.RECEIPT_ID, RECEIPTS_TAGS.TAG_ID)
+                    .values(receiptId, tagId).execute();
+        }
+    }
+
+    public List<ReceiptsRecord> getReceiptsForTag(Integer tagId) {
+        Result<Record3<Integer, String, BigDecimal>> result = dsl.select(RECEIPTS.ID, RECEIPTS.MERCHANT, RECEIPTS.AMOUNT).from(RECEIPTS)
+                .innerJoin(RECEIPTS_TAGS).on(RECEIPTS.ID.eq(RECEIPTS_TAGS.RECEIPT_ID))
+                .where(RECEIPTS_TAGS.TAG_ID.eq(tagId))
+                .fetch();
+
+        List<ReceiptsRecord> receiptsRecords = new ArrayList<>();
+
+        for (Record3 r: result) {
+            ReceiptsRecord receiptsRecord = new ReceiptsRecord();
+            receiptsRecord.setId((Integer)r.getValue(0));
+            receiptsRecord.setMerchant((String)r.getValue(1));
+            receiptsRecord.setAmount((BigDecimal) r.getValue(2));
+            receiptsRecords.add(receiptsRecord);
+        }
+
+        return receiptsRecords;
+    }
+
 }
