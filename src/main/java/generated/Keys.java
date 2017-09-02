@@ -5,10 +5,15 @@ package generated;
 
 
 import generated.tables.Receipts;
+import generated.tables.ReceiptsTags;
+import generated.tables.Tags;
 import generated.tables.records.ReceiptsRecord;
+import generated.tables.records.ReceiptsTagsRecord;
+import generated.tables.records.TagsRecord;
 
 import javax.annotation.Generated;
 
+import org.jooq.ForeignKey;
 import org.jooq.Identity;
 import org.jooq.UniqueKey;
 import org.jooq.impl.AbstractKeys;
@@ -33,17 +38,22 @@ public class Keys {
 	// -------------------------------------------------------------------------
 
 	public static final Identity<ReceiptsRecord, Integer> IDENTITY_RECEIPTS = Identities0.IDENTITY_RECEIPTS;
+	public static final Identity<TagsRecord, Integer> IDENTITY_TAGS = Identities0.IDENTITY_TAGS;
 
 	// -------------------------------------------------------------------------
 	// UNIQUE and PRIMARY KEY definitions
 	// -------------------------------------------------------------------------
 
 	public static final UniqueKey<ReceiptsRecord> CONSTRAINT_F = UniqueKeys0.CONSTRAINT_F;
+	public static final UniqueKey<TagsRecord> CONSTRAINT_2 = UniqueKeys0.CONSTRAINT_2;
+	public static final UniqueKey<ReceiptsTagsRecord> RECEIPT_TAG_PK = UniqueKeys0.RECEIPT_TAG_PK;
 
 	// -------------------------------------------------------------------------
 	// FOREIGN KEY definitions
 	// -------------------------------------------------------------------------
 
+	public static final ForeignKey<ReceiptsTagsRecord, ReceiptsRecord> FK_RECEIPT = ForeignKeys0.FK_RECEIPT;
+	public static final ForeignKey<ReceiptsTagsRecord, TagsRecord> FK_TAG = ForeignKeys0.FK_TAG;
 
 	// -------------------------------------------------------------------------
 	// [#1459] distribute members to avoid static initialisers > 64kb
@@ -51,9 +61,17 @@ public class Keys {
 
 	private static class Identities0 extends AbstractKeys {
 		public static Identity<ReceiptsRecord, Integer> IDENTITY_RECEIPTS = createIdentity(Receipts.RECEIPTS, Receipts.RECEIPTS.ID);
+		public static Identity<TagsRecord, Integer> IDENTITY_TAGS = createIdentity(Tags.TAGS, Tags.TAGS.ID);
 	}
 
 	private static class UniqueKeys0 extends AbstractKeys {
 		public static final UniqueKey<ReceiptsRecord> CONSTRAINT_F = createUniqueKey(Receipts.RECEIPTS, Receipts.RECEIPTS.ID);
+		public static final UniqueKey<TagsRecord> CONSTRAINT_2 = createUniqueKey(Tags.TAGS, Tags.TAGS.ID);
+		public static final UniqueKey<ReceiptsTagsRecord> RECEIPT_TAG_PK = createUniqueKey(ReceiptsTags.RECEIPTS_TAGS, ReceiptsTags.RECEIPTS_TAGS.RECEIPT_ID, ReceiptsTags.RECEIPTS_TAGS.TAG_ID);
+	}
+
+	private static class ForeignKeys0 extends AbstractKeys {
+		public static final ForeignKey<ReceiptsTagsRecord, ReceiptsRecord> FK_RECEIPT = createForeignKey(generated.Keys.CONSTRAINT_F, ReceiptsTags.RECEIPTS_TAGS, ReceiptsTags.RECEIPTS_TAGS.RECEIPT_ID);
+		public static final ForeignKey<ReceiptsTagsRecord, TagsRecord> FK_TAG = createForeignKey(generated.Keys.CONSTRAINT_2, ReceiptsTags.RECEIPTS_TAGS, ReceiptsTags.RECEIPTS_TAGS.TAG_ID);
 	}
 }
