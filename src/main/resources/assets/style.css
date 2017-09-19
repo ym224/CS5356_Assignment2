@@ -1,0 +1,17 @@
+#container {border: 1px solid brown;}
+H1 {float: left;}
+.custom{
+    width:60%;
+    margin:0 auto;
+}
+#receiptList {
+    border: 1px solid green;
+    clear: both;
+}
+table, th, td {
+    border: 1px solid black;
+}
+.receipt {
+    background-color: #eee;
+    margin-bottom: 5px;
+}

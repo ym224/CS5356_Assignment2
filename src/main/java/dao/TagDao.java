@@ -28,7 +28,6 @@ public class TagDao {
 
         checkState(tagsRecord != null && tagsRecord.getId() != null, "Insert into Tags failed");
 
-        System.out.println("tagId after insertion is " + tagsRecord.getId());
         return tagsRecord.getId();
     }
 

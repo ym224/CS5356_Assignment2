@@ -2,10 +2,7 @@ package dao;
 
 import generated.tables.records.ReceiptsRecord;
 import generated.tables.records.ReceiptsTagsRecord;
-import org.jooq.Configuration;
-import org.jooq.DSLContext;
-import org.jooq.Record3;
-import org.jooq.Result;
+import org.jooq.*;
 import org.jooq.impl.DSL;
 
 import java.math.BigDecimal;
@@ -15,6 +12,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkState;
 import static generated.Tables.RECEIPTS;
 import static generated.Tables.RECEIPTS_TAGS;
+import static generated.tables.Tags.TAGS;
 
 public class ReceiptDao {
     DSLContext dsl;
@@ -50,16 +48,20 @@ public class ReceiptDao {
 
         // delete if entry exists with receipt and tag
         if (receiptsTagsRecords.size() > 0) {
-            dsl.delete(RECEIPTS_TAGS)
-                    .where(RECEIPTS_TAGS.RECEIPT_ID.eq(receiptId))
-                    .and(RECEIPTS_TAGS.TAG_ID.eq(tagId))
-                    .execute();
+            deleteTagReceipt(receiptId, tagId);
         }
         // otherwise, create new entry with receipt and tag
         else {
             dsl.insertInto(RECEIPTS_TAGS, RECEIPTS_TAGS.RECEIPT_ID, RECEIPTS_TAGS.TAG_ID)
                     .values(receiptId, tagId).execute();
         }
+    }
+
+    public void deleteTagReceipt(Integer receiptId, Integer tagId){
+        dsl.delete(RECEIPTS_TAGS)
+                .where(RECEIPTS_TAGS.RECEIPT_ID.eq(receiptId))
+                .and(RECEIPTS_TAGS.TAG_ID.eq(tagId))
+                .execute();
     }
 
     public List<ReceiptsRecord> getReceiptsForTag(Integer tagId) {
@@ -81,4 +83,17 @@ public class ReceiptDao {
         return receiptsRecords;
     }
 
+    public List<String> getTagNamesForReceiptId(Integer receiptId) {
+        Result<Record1<String>> result = dsl.select(TAGS.NAME).from(TAGS)
+                .innerJoin(RECEIPTS_TAGS).on(TAGS.ID.eq(RECEIPTS_TAGS.TAG_ID))
+                .where(RECEIPTS_TAGS.RECEIPT_ID.eq(receiptId))
+                .fetch();
+
+        List<String> tagNames = new ArrayList<>();
+
+        for (Record1 r: result) {
+            tagNames.add((String)r.getValue(0));
+        }
+        return tagNames;
+    }
 }

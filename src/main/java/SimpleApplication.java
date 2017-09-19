@@ -1,9 +1,12 @@
 import controllers.HelloWorldController;
 import controllers.ReceiptController;
+import controllers.StaticHtmlController;
 import dao.ReceiptDao;
 import dao.TagDao;
 import io.dropwizard.Application;
 import io.dropwizard.Configuration;
+import io.dropwizard.assets.AssetsBundle;
+import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.h2.jdbcx.JdbcConnectionPool;
@@ -14,6 +17,13 @@ import org.jooq.impl.DefaultConfiguration;
 public class SimpleApplication extends Application<Configuration> {
     public static void main(String[] args) throws Exception {
         new SimpleApplication().run(args);
+    }
+
+    @Override
+    public void initialize(Bootstrap<Configuration> bootstrap) {
+        bootstrap.addBundle(new AssetsBundle("/assets", "/api", "index.html"));
+        bootstrap.addBundle(new AssetsBundle("/assets", "/api", "", "style.css"));
+        bootstrap.addBundle(new AssetsBundle("/assets", "/api", "", "receiptTag.css"));
     }
 
     private static void enableSessionSupport(Environment env) {
@@ -44,6 +54,7 @@ public class SimpleApplication extends Application<Configuration> {
         // Register all Controllers below.  Don't forget 
         // you need class and method @Path annotations!
         env.jersey().register(new HelloWorldController());
+        env.jersey().register(new StaticHtmlController());
         env.jersey().register(new ReceiptController(receiptDao, tagDao));
     }
 }

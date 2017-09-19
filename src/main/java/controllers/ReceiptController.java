@@ -37,7 +37,11 @@ public class ReceiptController {
     @Path("/receipts")
     public List<ReceiptResponse> getReceipts() {
         List<ReceiptsRecord> receiptRecords = receipts.getAllReceipts();
-        return receiptRecords.stream().map(ReceiptResponse::new).collect(toList());
+        List<ReceiptResponse> receiptResponses = receiptRecords.stream().map(ReceiptResponse::new).collect(toList());
+        receiptResponses.forEach(receiptResponse ->
+                receiptResponse.getTags().addAll(
+                        receipts.getTagNamesForReceiptId(receiptResponse.getId())));
+        return receiptResponses;
     }
 
     @PUT
@@ -64,14 +68,24 @@ public class ReceiptController {
         return receiptsRecords.stream().map(ReceiptResponse::new).collect(toList());
     }
 
-    @GET
-    @Path("/netid")
-    public String getNetId() {
-        return "ym224";
+    @DELETE
+    @Path("/tags/{tag}")
+    public Response getReceipts(@PathParam("tag") String tagName, Integer receiptId) {
+        // return 404 if no receipt id doesn't exist
+        if (!receipts.idExists(receiptId)) {
+            throw new WebApplicationException("receipt id does not exist", Response.Status.NOT_FOUND);
+        }
+        Integer tagId = tags.getTagIdFromName(tagName);
+        if (tagId == null ) {
+            throw new WebApplicationException("receipt id does not exist", Response.Status.NOT_FOUND);
+        }
+        receipts.deleteTagReceipt(receiptId, tagId);
+        return Response.ok().build();
     }
 
     @GET
-    public String getNetIdBase() {
+    @Path("/netid")
+    public String getNetId() {
         return "ym224";
     }
 

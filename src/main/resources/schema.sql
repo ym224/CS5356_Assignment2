@@ -23,6 +23,3 @@ CREATE TABLE receipts_tags (
   CONSTRAINT fk_receipt FOREIGN KEY (receipt_id) REFERENCES receipts (id),
   CONSTRAINT fk_tag FOREIGN KEY (tag_id) REFERENCES tags (id)
 );
-
-select * from receipts;
-select * from tags;

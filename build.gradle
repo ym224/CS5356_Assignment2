@@ -53,12 +53,15 @@ dependencies {
     compile 'com.google.guava:guava:22.0'               // Great java utility library
     compile 'io.dropwizard:dropwizard-core:1.2.0-rc2'   // Great implementation of many basic Java Server libs
     compile 'io.dropwizard:dropwizard-db:1.2.0-rc2'     // Provides manages data sources
+    compile 'io.dropwizard:dropwizard-assets:1.2.0-rc2'
 
     compile 'org.jooq:jooq:3.9.5'                       // DSL for SQL in java
     compile 'com.h2database:h2:1.4.196'                 // in-memory SQL. we'll upgrade to mysql later
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.hamcrest:hamcrest-all:1.3'
+    testCompile 'org.mockito:mockito-core:1.9.5'
+    testCompile 'io.dropwizard:dropwizard-testing:1.2.0-rc2'
 }
 
 
