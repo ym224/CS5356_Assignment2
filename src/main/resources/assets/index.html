@@ -7,6 +7,7 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
     <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" ></script>
+    <script data-require="jquery@*" data-semver="3.1.1" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="api/receiptTag.js"></script>
 </head>
 <body>
@@ -28,6 +29,13 @@
                 </div>
                 <div id="receiptList"></div>
             </table>
+            <button id="start-camera">Start Video</button>
+            <button id="take-pic-cancel" disabled="true">Cancel</button>
+            <button id="take-pic" disabled="true">Take a Snapshot!</button>
+            <br>
+            <div id="vidwrap">
+                <video autoplay></video>
+            </div>
         </div>
     </div>
 </body>

@@ -15,3 +15,20 @@ table, th, td {
     background-color: #eee;
     margin-bottom: 5px;
 }
+body {
+    text-align: center;
+}
+
+video {
+    width: 400px;
+    height: 300px;
+    border: 1px solid black;
+}
+
+#vidwrap {
+    margin: 20px 0;
+}
+
+#start, #snapshot {
+    height: 3em;
+}

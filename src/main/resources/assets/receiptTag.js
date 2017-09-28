@@ -88,9 +88,13 @@ function cancel() {
 }
 
 // post receipt
-function addReceipt() {
-    var merchant = document.getElementById("merchant").value;
-    var amount = parseFloat(document.getElementById("amount").value);
+function addReceipt(merchant, amount) {
+    if (!merchant) {
+        merchant = document.getElementById("merchant").value;
+    }
+    if (!amount) {
+        amount = parseFloat(document.getElementById("amount").value);
+    }
     $.ajax({
         url: '/receipts',
         type: 'post',
@@ -118,3 +122,69 @@ function deleteTag(input) {
     var tags = input.parentNode;
     tags.removeChild(input);
 }
+
+let imageCapture;
+function attachMediaStream(mediaStream) {
+    $('video')[0].srcObject = mediaStream;
+    // Saving the track allows us to capture a photo
+    const track = mediaStream.getVideoTracks()[0];
+    imageCapture = new ImageCapture(track);
+}
+
+function startVideo() {
+    navigator.mediaDevices.getUserMedia({video: {facingMode: {exact: "environment"}}})
+        .then(attachMediaStream)
+        .catch(error => {
+        navigator.mediaDevices.getUserMedia({video: true})
+        .then(attachMediaStream)
+        .catch(error => {
+        console.log('you are fooked');
+        });
+    });
+}
+
+function takeSnapshot() {
+    // create a CANVAS element that is same size as the image
+    imageCapture.takePhoto()
+        .then(blob => createImageBitmap(blob)).then(img => {
+        const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    canvas.getContext('2d').drawImage(img, 0, 0);
+    const base64EncodedImageData = canvas.toDataURL('image/png').split(',')[1];
+    $.ajax({
+        url: "/images",
+        type: "POST",
+        data: base64EncodedImageData,
+        contentType: "text/plain",
+        success: function() {},
+    }).then(response => {
+        $('video').after(`<div>got response: <pre>${JSON.stringify(response)}</pre></div>`);
+        merchant = JSON.stringify(response.merchantName);
+        amount = JSON.stringify(response.amount);
+        // get merchant name and amount
+        displayReceiptInputs();
+        addReceipt(merchant, amount);
+})
+.always(() => console.log('request complete'));
+    // For debugging, you can uncomment this to see the frame that was captured
+    // $('BODY').append(canvas);
+});
+}
+
+function cancelVideo(){
+    // if stream open, stop stream
+    vid.pause();
+    vid.src = "";
+    localstream.getTracks()[0].stop();
+    console.log("Vid off");
+    localstream.stop();
+}
+
+$(function () {
+    $('#start-camera').on('click', startVideo);
+    $('video').on('play', () => $('#take-pic').prop('disabled', false));
+    $('video').on('play', () => $('#take-pic-cancel').prop('disabled', false));
+    $('#take-pic').on('click', takeSnapshot);
+    $('#take-pic-cancel').on('click', cancelVideo);
+});
