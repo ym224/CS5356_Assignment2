@@ -9,8 +9,10 @@ H1 {float: left;}
     display: inline-block;
     clear: both;
 }
-table, th, td {
-    border: 1px solid springgreen;
+th, td {
+    border: 1px solid green;
+    background-color: #ffffff;
+    padding: 0 5px 0 5px;
 }
 .receipt {
     background-color: #eee;
