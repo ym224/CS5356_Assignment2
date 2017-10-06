@@ -4,8 +4,7 @@ import api.ReceiptSuggestionResponse;
 import com.google.cloud.vision.v1.*;
 import com.google.protobuf.ByteString;
 import java.math.BigDecimal;
-import java.util.Base64;
-import java.util.Collections;
+import java.util.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -47,18 +46,39 @@ public class ReceiptImageController {
 
             String merchantName = null;
             BigDecimal amount = null;
+            boolean isMerchantNameSet = false;
 
             // Your Algo Here!!
             // Sort text annotations by bounding polygon.  Top-most non-decimal text is the merchant
             // bottom-most decimal text is the total amount
+            List<String> receiptTexts = new ArrayList<>();
             for (EntityAnnotation annotation : res.getTextAnnotationsList()) {
-                out.printf("Position : %s\n", annotation.getBoundingPoly());
-                out.printf("Text: %s\n", annotation.getDescription());
-                annotation.getAllFields().forEach((k, v) -> out.printf("%s : %s\n", k, v.toString()));
+                //out.printf("Position : %s\n", annotation.getBoundingPoly());
+                //out.printf("Text: %s\n", annotation.getDescription());
+                //TextAnnotation fullTextAnnotation = res.getFullTextAnnotation();
+                //annotation.getAllFields().forEach((k, v) -> out.printf("%s : %s\n", k, v.toString()));
+                String text = annotation.getDescription();
+                if (!isMerchantNameSet && text.length() < 20 && !isDecimalText(text)) {
+                    merchantName = text;
+                    isMerchantNameSet = true;
+                }
+                if (isDecimalText(text)) {
+                    try {
+                        amount = new BigDecimal(text);
+                    } catch (Exception NumberFormatException) {
+                        System.err.println(text + " is not a currency.");
+                    }
+                }
             }
+            System.out.println("merchant " + merchantName);
+            System.out.println("amt " + amount);
 
-            //TextAnnotation fullTextAnnotation = res.getFullTextAnnotation();
             return new ReceiptSuggestionResponse(merchantName, amount);
         }
+    }
+
+    boolean isDecimalText(String text){
+        String[] splitStrings = text.split("\\.");
+        return (splitStrings.length == 2 && splitStrings[1].length() == 2);
     }
 }

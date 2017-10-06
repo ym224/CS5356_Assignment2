@@ -6,10 +6,11 @@ H1 {float: left;}
 }
 #receiptList {
     border: 1px solid green;
+    display: inline-block;
     clear: both;
 }
 table, th, td {
-    border: 1px solid black;
+    border: 1px solid springgreen;
 }
 .receipt {
     background-color: #eee;
@@ -20,15 +21,34 @@ body {
 }
 
 video {
-    width: 400px;
-    height: 300px;
-    border: 1px solid black;
+    width: 550px;
+    height: 450px;
+    border: 1px solid green;
 }
 
 #vidwrap {
     margin: 20px 0;
 }
 
+#receiptInputs{
+    display: none;
+    padding: 10px 0px 10px 0;
+}
+
+#cameraInputs{
+    display: none;
+}
+
 #start, #snapshot {
     height: 3em;
+}
+
+#camera_ico {
+    width: 20px;
+    height: 20px;
+}
+
+#add_ico {
+    width: 20px;
+    height: 20px;
 }

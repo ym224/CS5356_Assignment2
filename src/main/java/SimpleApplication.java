@@ -23,6 +23,8 @@ public class SimpleApplication extends Application<Configuration> {
     @Override
     public void initialize(Bootstrap<Configuration> bootstrap) {
         bootstrap.addBundle(new AssetsBundle("/assets", "/api", "index.html"));
+        bootstrap.addBundle(new AssetsBundle("/assets", "/api", "", "add.png"));
+        bootstrap.addBundle(new AssetsBundle("/assets", "/api", "", "camera.png"));
         bootstrap.addBundle(new AssetsBundle("/assets", "/api", "", "style.css"));
         bootstrap.addBundle(new AssetsBundle("/assets", "/api", "", "receiptTag.css"));
     }

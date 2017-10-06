@@ -37,7 +37,7 @@ function addTagToReceipt(receiptId){
 
 // get tag name
 function getTagRow(tag){
-    return `<span class="tagValue" onclick="deleteTag(this)">${tag}</span>`;
+    return `<span class="tagValue" onclick="deleteTag(this)">${tag} </span>`;
 }
 
 // add a receipt to table
@@ -77,8 +77,25 @@ function getReceipts(latest){
 getReceipts();
 
 // display receipt inputs
-function displayReceiptInputs() {
-    document.getElementById('receiptInputs').style.display = "block";
+function toggleReceiptInputs(show) {
+    var receiptInputs = document.getElementById('receiptInputs');
+    if (show || receiptInputs.style.display !== "block") {
+        receiptInputs.style.display = "block";
+    }
+    else {
+        receiptInputs.style.display = "none";
+    }
+}
+
+// display camera
+function toggleCameraInputs() {
+    var cameraInputs = document.getElementById('cameraInputs');
+    if (cameraInputs.style.display !== "block") {
+        cameraInputs.style.display = "block";
+    }
+    else {
+        cameraInputs.style.display = "none";
+    }
 }
 
 // cancel receipt inputs
@@ -87,14 +104,20 @@ function cancel() {
     document.getElementById("amount").value = "";
 }
 
+function setReceiptValues(merchant, amount){
+    if (merchant) {
+        $("#merchant").val(merchant);
+    }
+    if (amount) {
+        $("#amount").val(amount);
+    }
+        //addReceipt(merchant, amount);
+}
+
 // post receipt
 function addReceipt(merchant, amount) {
-    if (!merchant) {
-        merchant = document.getElementById("merchant").value;
-    }
-    if (!amount) {
-        amount = parseFloat(document.getElementById("amount").value);
-    }
+    merchant = document.getElementById("merchant").value;
+    amount = parseFloat(document.getElementById("amount").value);
     $.ajax({
         url: '/receipts',
         type: 'post',
@@ -105,6 +128,8 @@ function addReceipt(merchant, amount) {
             getReceipts(true);
         }
     });
+    $("#merchant").val("");
+    $("#amount").val("");
 }
 
 // delete tags
@@ -123,11 +148,12 @@ function deleteTag(input) {
     tags.removeChild(input);
 }
 
-let imageCapture;
+var imageCapture;
+var track;
 function attachMediaStream(mediaStream) {
     $('video')[0].srcObject = mediaStream;
     // Saving the track allows us to capture a photo
-    const track = mediaStream.getVideoTracks()[0];
+    track = mediaStream.getVideoTracks()[0];
     imageCapture = new ImageCapture(track);
 }
 
@@ -145,40 +171,39 @@ function startVideo() {
 
 function takeSnapshot() {
     // create a CANVAS element that is same size as the image
-    imageCapture.takePhoto()
-        .then(blob => createImageBitmap(blob)).then(img => {
-        const canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    canvas.getContext('2d').drawImage(img, 0, 0);
-    const base64EncodedImageData = canvas.toDataURL('image/png').split(',')[1];
-    $.ajax({
-        url: "/images",
-        type: "POST",
-        data: base64EncodedImageData,
-        contentType: "text/plain",
-        success: function() {},
-    }).then(response => {
-        $('video').after(`<div>got response: <pre>${JSON.stringify(response)}</pre></div>`);
-        merchant = JSON.stringify(response.merchantName);
-        amount = JSON.stringify(response.amount);
-        // get merchant name and amount
-        displayReceiptInputs();
-        addReceipt(merchant, amount);
-})
-.always(() => console.log('request complete'));
+    imageCapture.grabFrame()
+        .then(img => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            canvas.getContext('2d').drawImage(img, 0, 0);
+            const base64EncodedImageData = canvas.toDataURL('image/png').split(',')[1];
+            $.ajax({
+                url: "/images",
+                type: "POST",
+                data: base64EncodedImageData,
+                contentType: "text/plain",
+                success: function() {},
+            })
+            .then(response => {
+            //$('video').after(`<div>got response: <pre>${JSON.stringify(response)}</pre></div>`);
+            merchant = response.merchantName;
+            amount = JSON.stringify(response.amount);
+            cancelVideo();
+            toggleReceiptInputs(true);
+            setReceiptValues(merchant, amount);
+            })
+        .always(() => console.log('request complete'));
     // For debugging, you can uncomment this to see the frame that was captured
     // $('BODY').append(canvas);
-});
+    });
 }
 
-function cancelVideo(){
-    // if stream open, stop stream
-    vid.pause();
-    vid.src = "";
-    localstream.getTracks()[0].stop();
-    console.log("Vid off");
-    localstream.stop();
+function cancelVideo() {
+    track.stop();
+    toggleCameraInputs();
+    $('video')[0].srcObject.getVideoTracks()[0].stop();
+
 }
 
 $(function () {

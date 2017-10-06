@@ -14,27 +14,37 @@
     <div class="panel panel-default custom">
         <div class="panel-heading">
             <h3 class="panel-title">My Receipts</h3>
-            <div id="add-receipt" onclick="displayReceiptInputs()">+</div>
+            <span>
+                <div id="add-receipt" onclick="toggleReceiptInputs()">
+                    <img id="add_ico" src="api/add.png"/>
+                </div>
+                <div id="start-camera" onclick="toggleCameraInputs()">
+                    <img id="camera_ico" src="api/camera.png"/>
+                </div>
+            </span>
         </div>
-        <div id="receiptInputs" style="display:none;">
-            merchant<input id="merchant" />
-            amount<input id="amount"  />
+        <div id="receiptInputs">
+            merchant <input id="merchant" />
+            amount <input id="amount"  />
             <button id="cancel-receipt" onclick="cancel()">cancel</button>
             <button id="save-receipt" onclick="addReceipt()">save</button>
         </div>
-        <div class="panel-body">
-            <table>
-                <div class="row">
-                    <div class="col-4 col-lg-4">Time Merchant $ Tags</div>
-                </div>
-                <div id="receiptList"></div>
-            </table>
-            <button id="start-camera">Start Video</button>
-            <button id="take-pic-cancel" disabled="true">Cancel</button>
-            <button id="take-pic" disabled="true">Take a Snapshot!</button>
+        <div id="cameraInputs">
+            <button id="take-pic-cancel" disabled="true">cancel</button>
+            <button id="take-pic" disabled="true">snap</button>
             <br>
             <div id="vidwrap">
                 <video autoplay></video>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div id="receiptList">
+                <tr>
+                    <td>Time</td>
+                    <td>Merchant</td>
+                    <td>Amount</td>
+                    <td>Tags</td>
+                </tr>
             </div>
         </div>
     </div>
